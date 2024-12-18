@@ -1,0 +1,22 @@
+library(vegan)
+library(ggplot2)
+biomass <- read.csv("E:/R/biomass.csv", row.names=1)
+design <- read.csv("E:/R/design.csv", row.names=1)
+t=data.matrix(biomass)
+biomass.nmds=metaMDS(t,distance="bray")
+biomass.nmds
+stressplot(biomass.nmds)
+plot(biomass.nmds,type="t")
+plot(biomass.nmds)
+biomass.dist <- vegdist(biomass)
+biomass.ano <- with(design, anosim(biomass.dist,group))
+summary(biomass.ano)
+plot(biomass.ano)
+data.scores <- as.data.frame(scores(biomass.nmds))
+data.scores
+
+library(readxl)
+scores <- read.csv("E:/R/scores.csv")
+nmds_plot <- ggplot(scores, aes(NMDS1, NMDS2, group = group, color = group))+geom_point()
+nmds_plot
+nmds_plot+stat_ellipse(level=0.95,show.legend=F,type="t",linetype=2)+annotate("text",x=0.75,y=0.75,parse=TRUE,size=4,label="'R:'*0.0178",family="serif",fontface="italic",colour="black")+annotate("text",x=0.75,y=0.65,parse=TRUE,size=4,label="'p:'*0.254",family="serif",fontface="italic",colour="black")+annotate("text",x=0.75,y=0.55,parse=TRUE,size=4,label="'Stress:'*0.2496",family="serif",fontface="italic",colour="black")

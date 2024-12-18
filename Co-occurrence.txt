@@ -1,0 +1,42 @@
+#生成边文件和点文件
+rm(list=ls())#清除环境
+setwd('D:/R figure')#设置工作路径
+#安装包
+install.packages('Hmisc')
+install.packages("igraph")
+install.packages('Hmisc')
+install.packages('vegan')
+install.packages('dplyr')
+install.packages('reshape2')
+#加载包（如果下边包没有安装，重复上边的步骤）
+library(igraph)
+library(psych)
+library(Hmisc)
+library(vegan)
+library(dplyr)
+library(reshape2)
+#加载数据
+df1 <- read.table(file="ASV11.txt",sep="\t",header=T,check.names=FALSE,row.names = 1)
+head(df1)
+#求相对丰度
+df2 <- apply(df1,2,function(x) x/sum(x))
+#过滤低丰度OTU
+df3 <- df2[which(rowSums(df2) >= 0.01), ]#将丰度小于0.01的舍弃
+#计算OTU间的相关性
+df_corr <- rcorr(t(df3), type = 'spearman')#这里我们计算spearman相关系数
+#提取R值、P值并校正P值
+occor.r = df_corr$r
+occor.p = df_corr$P#注意，这里P大写
+occor.r[occor.p>0.05|abs(occor.r)<0.6] = 0 #根据R和P筛选相关性显著的otu
+diag(occor.r) <- 0 
+occor.r[upper.tri(occor.r)] <- 0
+df=melt(as.matrix(occor.r))
+#构建gephi边文件
+df$Var1=as.character(df$Var1) #转换为character
+df$Var2=as.character(df$Var2)
+df1=subset(df,!df$Var1==df$Var2) #删除自相关
+colnames(df1)=c("Source", "Target", "Weight")
+df1=subset(df1,!df1$Weight==0) #去除权重为0的边
+write.csv(df1,"edge.csv",row.names = F) #导出边文件
+df2=data.frame(id=unique(c(df1$Source,df1$Target)))
+write.csv(df2,"node.csv",row.names = F) #输出节点文件

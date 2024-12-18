@@ -1,0 +1,11 @@
+rm(list=ls())#清除环境
+
+library("vegan")
+library(ade4)
+library(vegan)
+library(permute)
+library(lattice)
+
+a<-varpart(index,rootbacteria,rootfungi,soilbacteria,soilfungi)
+a
+plot (a,digits=2,Xnames=c('rootbacteria', 'rootfungi', 'soilbacteria', 'soilfungi'),bg=c('navy','tomato','grey','green'))

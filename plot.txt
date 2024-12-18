@@ -1,0 +1,33 @@
+rm(list=ls())#清除环境
+setwd('E:/R')#设置工作路径
+#安装并加载R包
+install.packages("GGally")
+library(GGally)
+library(rstatix)
+#读入数据
+env = read.csv("name.csv",header=TRUE,row.names = 1)
+env
+#默认参数绘图
+p1 = ggpairs(env, cardinality_threshold = NULL)
+pdf("p1.pdf",height = 20,width = 20,family = "Times")
+print(p1)
+dev.off()
+# 2.2 选择指定列绘图
+p2 = ggpairs(env, columns = c(2:15) 
+# 默认左下角(lower)为成对变量散点图，对角(diag)为密度曲线图，右上角(upper)为相关性系数和显著性标记。
+#p2 = ggpairs(env, columns = c(colnames(env[15:25)), columnLabels = c(colnames(env[4:7]),"ammonia",colnames(env[9:14]))) # columnLabels可以更改变量名
+pdf("p2.pdf",height = 11,width = 11,family = "Times")
+print(p2)
+dev.off()
+# 2.3 使用分组信息对变量进行分类
+library(ggsci)
+cols = pal_d3("category10")(10)
+p3 = ggpairs(env, 
+             mapping = ggplot2::aes(color = condition,shape = condition),
+             columns = c(colnames(env[2:16])))+
+  ggplot2::scale_color_manual(values = cols)+
+  ggplot2::scale_shape_manual(values = c(17:20))
+pdf("p3.pdf",height = 15,width = 15,family = "Times")
+print(p3)
+dev.off()
+options(max.print=1000000)
